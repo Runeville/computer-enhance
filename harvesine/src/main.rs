@@ -1,0 +1,23 @@
+mod cli;
+mod generate;
+
+use clap::Parser;
+
+use cli::{Cli, Command};
+use generate::{generate_pairs_clustered, generate_pairs_uniform};
+
+fn main() {
+    let cli = Cli::parse();
+
+    match cli.command {
+        Command::Setup(args) => {
+            if args.uniform {
+                let input = generate_pairs_uniform(args.n);
+                println!("{}", serde_json::to_string(&input).unwrap());
+            } else {
+                let input = generate_pairs_clustered(args.n);
+                println!("{}", serde_json::to_string(&input).unwrap());
+            }
+        }
+    }
+}
