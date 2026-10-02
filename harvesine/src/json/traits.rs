@@ -72,8 +72,16 @@ impl<'a> Deserializer<'a> {
         todo!()
     }
 
-    fn parse_bool(&self) -> Result<bool, String> {
-        todo!()
+    fn parse_bool(&mut self) -> Result<bool, String> {
+        if self.input.get(self.pos..self.pos + 4) == Some(b"true") {
+            self.pos += 4;
+            Ok(true)
+        } else if self.input.get(self.pos..self.pos + 5) == Some(b"false") {
+            self.pos += 5;
+            Ok(false)
+        } else {
+            Err("expected bool".into())
+        }
     }
 
     fn parse_null(&mut self) -> Result<(), String> {
