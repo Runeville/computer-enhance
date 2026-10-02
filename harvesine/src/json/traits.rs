@@ -64,8 +64,42 @@ impl<'a> Deserializer<'a> {
         todo!()
     }
 
-    fn parse_object(&self) -> Result<JsonValue, String> {
-        todo!()
+    fn parse_object(&mut self) -> Result<JsonValue, String> {
+        self.next(); // {
+
+        let mut object = HashMap::new();
+
+        self.skip_whitespace();
+
+        if self.peek() == Some(b'}') {
+            self.next();
+            return Ok(JsonValue::Object(object));
+        }
+
+        loop {
+            self.skip_whitespace();
+
+            let key = self.parse_string()?;
+
+            self.skip_whitespace();
+
+            if self.next() != Some(b':') {
+                return Err("Expected ':'".into());
+            }
+
+            let value = self.parse_value()?;
+            object.insert(key, value);
+
+            self.skip_whitespace();
+
+            match self.next() {
+                Some(b',') => {}
+                Some(b'}') => break,
+                _ => return Err("Expected ',' or '}'".into()),
+            }
+        }
+
+        Ok(JsonValue::Object(object))
     }
 
     fn parse_array(&mut self) -> Result<JsonValue, String> {
