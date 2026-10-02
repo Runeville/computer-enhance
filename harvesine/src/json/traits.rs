@@ -77,7 +77,12 @@ impl<'a> Deserializer<'a> {
     }
 
     fn parse_null(&self) -> Result<(), String> {
-        todo!()
+        if self.input.get(self.pos..self.pos + 4) == Some(b"null") {
+            self.pos += 4;
+            Ok(())
+        } else {
+            Err("expected 'null'".into())
+        }
     }
 
     pub fn parse_value(&mut self) -> Result<JsonValue, String> {
