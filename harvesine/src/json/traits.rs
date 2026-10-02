@@ -40,6 +40,63 @@ impl<'a> Deserializer<'a> {
             self.pos += 1;
         }
     }
+
+    fn parse_string(&self) -> Result<String, String> {
+        todo!()
+    }
+
+    fn parse_number(&self) -> Result<f64, String> {
+        todo!()
+    }
+
+    fn parse_object(&self) -> Result<JsonValue, String> {
+        todo!()
+    }
+
+    fn parse_array(&self) -> Result<JsonValue, String> {
+        todo!()
+    }
+
+    fn parse_bool(&self) -> Result<bool, String> {
+        todo!()
+    }
+
+    fn parse_null(&self) -> Result<(), String> {
+        todo!()
+    }
+
+    pub fn parse_value(&mut self) -> Result<JsonValue, String> {
+        self.skip_whitespace();
+
+        match self.peek() {
+            Some(b'"') => {
+                let value = self.parse_string()?;
+                Ok(JsonValue::String(value))
+            }
+            Some(b'{') => self.parse_object(),
+            Some(b'[') => self.parse_array(),
+            Some(b't') | Some(b'f') => {
+                let value = self.parse_bool()?;
+                Ok(JsonValue::Bool(value))
+            }
+            Some(b'n') => {
+                self.parse_null()?;
+                Ok(JsonValue::Null)
+            }
+
+            Some(b'-' | b'0'..=b'9') => {
+                let value = self.parse_number()?;
+                Ok(JsonValue::Number(value))
+            }
+
+            Some(c) => Err(format!(
+                "unexpected character '{}' at position {}",
+                c as char, self.pos
+            )),
+
+            None => Err("Unexpected end of line".to_string()),
+        }
+    }
 }
 
 // {"pairs": [{"x0": 32.0, "y0": 48.3}, {"x0": 81.9, "y0": 75.4}]}
