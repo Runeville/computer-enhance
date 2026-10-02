@@ -1,5 +1,6 @@
 mod cli;
 mod generate;
+mod json;
 
 use clap::Parser;
 
