@@ -76,7 +76,7 @@ impl<'a> Deserializer<'a> {
         todo!()
     }
 
-    fn parse_null(&self) -> Result<(), String> {
+    fn parse_null(&mut self) -> Result<(), String> {
         if self.input.get(self.pos..self.pos + 4) == Some(b"null") {
             self.pos += 4;
             Ok(())
