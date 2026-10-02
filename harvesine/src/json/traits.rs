@@ -41,8 +41,23 @@ impl<'a> Deserializer<'a> {
         }
     }
 
-    fn parse_string(&self) -> Result<String, String> {
-        todo!()
+    fn parse_string(&mut self) -> Result<String, String> {
+        if self.next() != Some(b'"') {
+            return Err("Expected '\"'".into());
+        }
+        let start = self.pos;
+
+        while let Some(byte) = self.peek() {
+            if byte == b'"' {
+                let slice = &self.input[start..self.pos];
+                self.pos += 1;
+                return String::from_utf8(slice.to_vec()).map_err(|_| "invalid UTF-8".into());
+            }
+
+            self.pos += 1;
+        }
+
+        Err("unterminated string".into())
     }
 
     fn parse_number(&self) -> Result<f64, String> {
