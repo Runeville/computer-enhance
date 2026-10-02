@@ -68,8 +68,37 @@ impl<'a> Deserializer<'a> {
         todo!()
     }
 
-    fn parse_array(&self) -> Result<JsonValue, String> {
-        todo!()
+    fn parse_array(&mut self) -> Result<JsonValue, String> {
+        self.next(); // Skip the '['
+
+        let mut values = Vec::new();
+        loop {
+            self.skip_whitespace();
+
+            if self.peek() == Some(b']') {
+                self.next();
+                break;
+            }
+
+            values.push(self.parse_value()?);
+
+            self.skip_whitespace();
+
+            match self.peek() {
+                Some(b',') => {
+                    self.next();
+                }
+                Some(b']') => {
+                    self.next();
+                    break;
+                }
+                _ => {
+                    return Err("Expected ',' or ']'".into());
+                }
+            }
+        }
+
+        Ok(JsonValue::Array(values))
     }
 
     fn parse_bool(&mut self) -> Result<bool, String> {
