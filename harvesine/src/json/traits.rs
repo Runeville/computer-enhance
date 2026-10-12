@@ -1,16 +1,43 @@
 use std::collections::HashMap;
 
 pub trait Deserialize: Sized {
-    fn deserialize(des: Deserializer, input: &str) -> Result<Self, String>
-    where
-        Self: Sized;
+    fn deserialize(value: JsonValue) -> Result<Self, String>;
 }
 
+impl Deserialize for String {
+    fn deserialize(value: JsonValue) -> Result<Self, String> {
+        match value {
+            JsonValue::String(value) => Ok(value),
+            _ => Err("Expected string".to_string()),
+        }
+    }
+}
+
+impl Deserialize for f32 {
+    fn deserialize(value: JsonValue) -> Result<Self, String> {
+        match value {
+            JsonValue::Number(value) => Ok(value),
+            _ => Err("Expected number".to_string()),
+        }
+    }
+}
+
+impl<T: Deserialize> Deserialize for Vec<T> {
+    fn deserialize(value: JsonValue) -> Result<Self, String> {
+        match value {
+            JsonValue::Array(values) => values.into_iter().map(T::deserialize).collect(),
+            _ => Err("Expected array".to_string()),
+        }
+    }
+}
+
+// Deserializer
+#[derive(Clone)]
 pub enum JsonValue {
     Null,
     String(String),
     Bool(bool),
-    Number(f64),
+    Number(f32),
     Array(Vec<JsonValue>),
     Object(HashMap<String, JsonValue>),
 }
@@ -60,7 +87,7 @@ impl<'a> Deserializer<'a> {
         Err("unterminated string".into())
     }
 
-    fn parse_number(&mut self) -> Result<f64, String> {
+    fn parse_number(&mut self) -> Result<f32, String> {
         self.skip_whitespace();
 
         let is_negative = self.peek() == Some(b'-');
@@ -71,7 +98,7 @@ impl<'a> Deserializer<'a> {
         let mut result = 0.0;
 
         while let Some(b'0'..=b'9') = self.peek() {
-            result = result * 10.0 + (self.next().unwrap() - b'0') as f64;
+            result = result * 10.0 + (self.next().unwrap() - b'0') as f32;
         }
 
         if self.peek() == Some(b'.') {
@@ -79,7 +106,7 @@ impl<'a> Deserializer<'a> {
 
             let mut fraction = 0.1;
             while let Some(b'0'..=b'9') = self.peek() {
-                result += (self.next().unwrap() - b'0') as f64 * fraction;
+                result += (self.next().unwrap() - b'0') as f32 * fraction;
                 fraction /= 10.0;
             }
         }
