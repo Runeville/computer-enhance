@@ -60,8 +60,35 @@ impl<'a> Deserializer<'a> {
         Err("unterminated string".into())
     }
 
-    fn parse_number(&self) -> Result<f64, String> {
-        todo!()
+    fn parse_number(&mut self) -> Result<f64, String> {
+        self.skip_whitespace();
+
+        let is_negative = self.peek() == Some(b'-');
+        if is_negative {
+            self.next();
+        }
+
+        let mut result = 0.0;
+
+        while let Some(b'0'..=b'9') = self.peek() {
+            result = result * 10.0 + (self.next().unwrap() - b'0') as f64;
+        }
+
+        if self.peek() == Some(b'.') {
+            self.next();
+
+            let mut fraction = 0.1;
+            while let Some(b'0'..=b'9') = self.peek() {
+                result += (self.next().unwrap() - b'0') as f64 * fraction;
+                fraction /= 10.0;
+            }
+        }
+
+        if is_negative {
+            result = -result
+        }
+
+        Ok(result)
     }
 
     fn parse_object(&mut self) -> Result<JsonValue, String> {
