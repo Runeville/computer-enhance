@@ -6,6 +6,7 @@ use clap::Parser;
 
 use cli::{Cli, Command};
 use generate::{generate_pairs_clustered, generate_pairs_uniform};
+use json::parse_json;
 
 fn main() {
     let cli = Cli::parse();
