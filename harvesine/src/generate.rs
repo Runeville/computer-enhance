@@ -1,7 +1,7 @@
 use rand::{RngExt, prelude::IndexedRandom};
 use serde::Serialize;
 
-use crate::json::{Deserialize, Deserializer, JsonValue};
+use crate::json::{Deserialize, JsonValue};
 
 #[derive(Serialize)]
 pub struct Pair {
@@ -17,11 +17,11 @@ pub struct Input {
 }
 
 impl Deserialize for Input {
-    fn deserialize(value: JsonValue) -> Result<Self, String> {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
         match value {
             JsonValue::Object(object) => {
                 let pairs_value = object.get("pairs").ok_or("Missing pairs")?;
-                let pairs = Vec::<Pair>::deserialize(pairs_value.clone())?;
+                let pairs = Vec::<Pair>::deserialize(pairs_value)?;
                 Ok(Input { pairs })
             }
             _ => Err("Expected object".to_string()),
@@ -30,30 +30,14 @@ impl Deserialize for Input {
 }
 
 impl Deserialize for Pair {
-    fn deserialize(value: JsonValue) -> Result<Self, String> {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
         match value {
-            JsonValue::Object(object) => {
-                let x0 = object.get("x0").ok_or("Missing x0")?;
-                let y0 = object.get("y0").ok_or("Missing y0")?;
-                let x1 = object.get("x1").ok_or("Missing x1")?;
-                let y1 = object.get("y1").ok_or("Missing y1")?;
-                if let (
-                    JsonValue::Number(x0),
-                    JsonValue::Number(y0),
-                    JsonValue::Number(x1),
-                    JsonValue::Number(y1),
-                ) = (x0, y0, x1, y1)
-                {
-                    Ok(Pair {
-                        x0: *x0,
-                        y0: *y0,
-                        x1: *x1,
-                        y1: *y1,
-                    })
-                } else {
-                    Err("Expected numbers".to_string())
-                }
-            }
+            JsonValue::Object(object) => Ok(Pair {
+                x0: f32::deserialize(object.get("x0").ok_or("Missing x0")?)?,
+                y0: f32::deserialize(object.get("y0").ok_or("Missing y0")?)?,
+                x1: f32::deserialize(object.get("x1").ok_or("Missing x1")?)?,
+                y1: f32::deserialize(object.get("y1").ok_or("Missing y1")?)?,
+            }),
             _ => Err("Expected object".to_string()),
         }
     }

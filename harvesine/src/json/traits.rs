@@ -1,29 +1,29 @@
 use std::collections::HashMap;
 
 pub trait Deserialize: Sized {
-    fn deserialize(value: JsonValue) -> Result<Self, String>;
+    fn deserialize(value: &JsonValue) -> Result<Self, String>;
 }
 
 impl Deserialize for String {
-    fn deserialize(value: JsonValue) -> Result<Self, String> {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
         match value {
-            JsonValue::String(value) => Ok(value),
+            JsonValue::String(value) => Ok(value.clone()),
             _ => Err("Expected string".to_string()),
         }
     }
 }
 
 impl Deserialize for f32 {
-    fn deserialize(value: JsonValue) -> Result<Self, String> {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
         match value {
-            JsonValue::Number(value) => Ok(value),
+            JsonValue::Number(value) => Ok(*value),
             _ => Err("Expected number".to_string()),
         }
     }
 }
 
 impl<T: Deserialize> Deserialize for Vec<T> {
-    fn deserialize(value: JsonValue) -> Result<Self, String> {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
         match value {
             JsonValue::Array(values) => values.into_iter().map(T::deserialize).collect(),
             _ => Err("Expected array".to_string()),
@@ -32,7 +32,6 @@ impl<T: Deserialize> Deserialize for Vec<T> {
 }
 
 // Deserializer
-#[derive(Clone)]
 pub enum JsonValue {
     Null,
     String(String),

@@ -7,5 +7,5 @@ where
     let mut des = Deserializer::new(input.as_bytes());
     let value = des.parse_value()?;
 
-    T::deserialize(value)
+    T::deserialize(&value)
 }
