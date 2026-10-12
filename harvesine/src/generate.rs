@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::json::{Deserialize, JsonValue};
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Pair {
     pub x0: f32,
     pub y0: f32,
@@ -11,7 +11,7 @@ pub struct Pair {
     pub y1: f32,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct Input {
     pairs: Vec<Pair>,
 }
