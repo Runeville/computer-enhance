@@ -13,7 +13,7 @@ pub struct Pair {
 
 #[derive(Debug, Serialize)]
 pub struct Input {
-    pairs: Vec<Pair>,
+    pub pairs: Vec<Pair>,
 }
 
 impl Deserialize for Input {

@@ -1,9 +1,11 @@
+mod calculate;
 mod cli;
 mod generate;
 mod json;
 
 use clap::Parser;
 
+use calculate::calculate_average_harvesine_distance;
 use cli::{Cli, Command};
 use generate::{Input, generate_pairs_clustered, generate_pairs_uniform};
 use json::parse_json;
@@ -24,7 +26,7 @@ fn main() {
         Command::Calculate(args) => {
             let data = std::fs::read_to_string(args.path).unwrap();
             let parsed: Input = parse_json(&data).unwrap();
-            println!("{parsed:#?}");
+            println!("{}", calculate_average_harvesine_distance(parsed));
         }
     }
 }
