@@ -9,6 +9,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Command {
     Setup(SetupArgs),
+    Calculate(CalculateArgs),
 }
 
 #[derive(Args)]
@@ -20,4 +21,11 @@ pub struct SetupArgs {
     /// Number of pairs generated
     #[arg(short, default_value_t = 1000)]
     pub n: usize,
+}
+
+#[derive(Args)]
+pub struct CalculateArgs {
+    /// Path to input json file
+    #[arg(long)]
+    pub path: String,
 }

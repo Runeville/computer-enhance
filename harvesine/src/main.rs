@@ -1,10 +1,12 @@
 mod cli;
 mod generate;
+mod json;
 
 use clap::Parser;
 
 use cli::{Cli, Command};
-use generate::{generate_pairs_clustered, generate_pairs_uniform};
+use generate::{Input, generate_pairs_clustered, generate_pairs_uniform};
+use json::parse_json;
 
 fn main() {
     let cli = Cli::parse();
@@ -18,6 +20,11 @@ fn main() {
                 let input = generate_pairs_clustered(args.n);
                 println!("{}", serde_json::to_string(&input).unwrap());
             }
+        }
+        Command::Calculate(args) => {
+            let data = std::fs::read_to_string(args.path).unwrap();
+            let parsed: Input = parse_json(&data).unwrap();
+            println!("{parsed:#?}");
         }
     }
 }

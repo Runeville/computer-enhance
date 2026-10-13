@@ -1,7 +1,9 @@
 use rand::{RngExt, prelude::IndexedRandom};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Serialize, Deserialize)]
+use crate::json::{Deserialize, JsonValue};
+
+#[derive(Debug, Serialize)]
 pub struct Pair {
     pub x0: f32,
     pub y0: f32,
@@ -9,9 +11,36 @@ pub struct Pair {
     pub y1: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct Input {
     pairs: Vec<Pair>,
+}
+
+impl Deserialize for Input {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
+        match value {
+            JsonValue::Object(object) => {
+                let pairs_value = object.get("pairs").ok_or("Missing pairs")?;
+                let pairs = Vec::<Pair>::deserialize(pairs_value)?;
+                Ok(Input { pairs })
+            }
+            _ => Err("Expected object".to_string()),
+        }
+    }
+}
+
+impl Deserialize for Pair {
+    fn deserialize(value: &JsonValue) -> Result<Self, String> {
+        match value {
+            JsonValue::Object(object) => Ok(Pair {
+                x0: f32::deserialize(object.get("x0").ok_or("Missing x0")?)?,
+                y0: f32::deserialize(object.get("y0").ok_or("Missing y0")?)?,
+                x1: f32::deserialize(object.get("x1").ok_or("Missing x1")?)?,
+                y1: f32::deserialize(object.get("y1").ok_or("Missing y1")?)?,
+            }),
+            _ => Err("Expected object".to_string()),
+        }
+    }
 }
 
 pub fn generate_pairs_uniform(n_pairs: usize) -> Input {
