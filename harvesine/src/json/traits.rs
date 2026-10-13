@@ -35,7 +35,6 @@ impl<T: Deserialize> Deserialize for Vec<T> {
 pub enum JsonValue {
     Null,
     String(String),
-    Bool(bool),
     Number(f32),
     Array(Vec<JsonValue>),
     Object(HashMap<String, JsonValue>),
@@ -188,18 +187,6 @@ impl<'a> Deserializer<'a> {
         Ok(JsonValue::Array(values))
     }
 
-    fn parse_bool(&mut self) -> Result<bool, String> {
-        if self.input.get(self.pos..self.pos + 4) == Some(b"true") {
-            self.pos += 4;
-            Ok(true)
-        } else if self.input.get(self.pos..self.pos + 5) == Some(b"false") {
-            self.pos += 5;
-            Ok(false)
-        } else {
-            Err("expected bool".into())
-        }
-    }
-
     fn parse_null(&mut self) -> Result<(), String> {
         if self.input.get(self.pos..self.pos + 4) == Some(b"null") {
             self.pos += 4;
@@ -219,10 +206,6 @@ impl<'a> Deserializer<'a> {
             }
             Some(b'{') => self.parse_object(),
             Some(b'[') => self.parse_array(),
-            Some(b't') | Some(b'f') => {
-                let value = self.parse_bool()?;
-                Ok(JsonValue::Bool(value))
-            }
             Some(b'n') => {
                 self.parse_null()?;
                 Ok(JsonValue::Null)
